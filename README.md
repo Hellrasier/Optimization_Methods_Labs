@@ -1,1 +1,1 @@
-# Optimization_Methods_Labs
+# Laboratory works of Optimization methods. KPI 2021
