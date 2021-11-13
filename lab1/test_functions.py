@@ -22,33 +22,59 @@ def plot_2Dfunction(f, zlim=[-10, 10], xy_range=[-10, 10], cmap=cm.gist_ncar, st
     fig.colorbar(surf, shrink=0.5, aspect=5)
     plt.show()
 
+
+danilov = lambda x: x[0] + 2*x[1] + 4*np.sqrt(1 + x[0]**2 + x[1]**2)
+danilov_gradient = lambda x: np.array([np.divide(4*x[0], np.sqrt(x[0]**2 + x[1]**2 + 1)) + 1, 
+                                       np.divide(4*x[1], np.sqrt(x[0]**2 + x[1]**2 + 1)) + 2])
+danilov_hessian = lambda x: np.array([[np.divide(4, np.sqrt(x[0]**2 + x[1]**2 + 1)) - np.divide(4*x[0]**2, np.power(x[0]**2 + x[1]**2 + 1, 1.5)), -np.divide(4*x[0]**2, np.power(x[0]**2 + x[1]**2 + 1, 1.5))],
+   [-np.divide(4*x[0]*x[1], np.power(x[0]**2 + x[1]**2 + 1, 1.5)), np.divide(4, np.sqrt(x[0]**2 + x[1]**2 + 1)) - np.divide(4*x[1]**2, np.power(x[0]**2 + x[1]**2 + 1, 1.5))]])
+    
+    
+    
 # Rastrigin function
 # global minimum: f(0, ..., 0) = 0
 #  search domain: -5.12 <= x_i <= 5.12
 rastrigin = lambda x: 10 * x.shape[0] + np.sum(np.power(x, 2) - 10 * np.cos(2*np.pi*x))
+# rastrigin_gradient = 
+# rastrigin_hessian =
 
 # Ackley function
 # global minimum: f(0, 0) = 0
 #  search domain: -5 <= x, y <= 5
 ackley = lambda x: (-20 * np.exp(-0.2 * np.sqrt(0.5 * (np.power(x[0], 2) + np.power(x[1], 2)))) -
     np.exp(0.5 * (np.cos(2*np.pi*np.power(x[0], 2)) + np.cos(2 * np.pi * np.power(x[1], 2))) ) + np.e + 20)
+# ackley_gradient =
+# ackley_hessian =
 
 # Sphere function
 # gloabl minimum: f(0, ..., 0) = 0
 sphere = lambda x: np.sum(np.power(x, 2))
+sphere_gradient = lambda x: np.array([2*x[0], 2*x[1]])
+sphere_hessian = lambda x: np.array([[2, 0],
+                                     [0, 2]])
 
 # Rozenbrock
 # f(1, 1) = 0
-rozenbrock = lambda x: 100*np.power(x[1]-x[0]**2, 2) + np.power(1-x[0], 2)
+rosenbrok = lambda x: 100*np.power(x[1]-x[0]**2, 2) + np.power(1-x[0], 2)
+rosen_gradient = lambda x: np.array([400*x[0]**3 - 400*x[0]*x[1] + 2*x[0] - 2, 200*(x[1] - x[0]**2)])
+rosen_hessian = lambda x: np.array([[1200*x[0]**2 - 400*x[1] + 2, -400*x[0]], 
+                                   [-400 * x[0], 200]])
 
 # f(3, 0.5) = 0
 beale = lambda x: np.power(1.5 - x[0] + x[0]*x[1], 2) + np.power(2.25 - x[0] + x[0]*x[1]**2, 2) + np.power(2.625 - x[0] + x[0]*x[1]**3, 2)
+beale_gradient = lambda x: np.array(
+    [-2*x[0]*(x[1]**6 - x[1]**4 - 2*x[1]**3 + x[1]**2 + 2*x[1] - 1) - 5.25*x[1]**3 + 4.5 * x[1]**2 + 3*x[1] - 2.25, 
+     -6*x[0]*(x[0]*(x[1]**5 - 0.666667*x[1]**3 - x[1]**2 + 0.333333*x[1] + 0.333333) + 2.625*x[1]**2 - 1.5*x[1] - 0.5)]
+)
+# beale_hessian = 
 
 # f(0, -1) = 3
 goldstein_price = lambda x: (
     (1 + np.power(x[0] + x[1] + 1, 2) * (19 - 14*x[0] + 3*x[0]**2 - 14*x[1] + 6*x[0]*x[1] + 3*x[1]**2)) *
     (30 + np.power(2*x[0] - 3*x[1], 2) * (18 - 32*x[0] + 12*x[0]**2 + 48*x[1] - 36*x[0]*x[1] + 27*x[1]**2))
 )
+# gold_gradient =
+# gold_hessian =
 
 # f(1, 3) = 0
 booth = lambda x: np.power(x[0] + 2*x[1] - 7, 2) + np.power(2*x[0] + x[1] - 5, 2)
@@ -61,6 +87,11 @@ bukin = lambda x: 100 * np.sqrt(np.abs(x[1] - 0.01*x[0]**2)) + 0.01*np.abs(x[0]+
 # f(-3.779310, -3.283186) = 0
 # f( 3.584428, -1.848126) = 0
 himmelblau = lambda x: np.power(x[0]**2 + x[1] - 11, 2) + np.power(x[0] + x[1]**2 - 7, 2)
+himmel_gradient = lambda x: np.array(
+    [2*(2*x[0]*(x[0]**2 + x[1] - 11) + x[0] + x[1]**2 - 7), 2*(x[0]**2 + 2*x[1]*(x[0] + x[1]**2 - 7) + x[1] - 11)]
+)
+himmel_hessian = lambda x: np.array([[4*(x[0]**2 + x[1] - 11) + 8*x[0]**2 + 2, 4*x[0] + 4*x[1]],
+                                     [4*x[0] + 4*x[1], 4*(x[0] + x[1]**2 - 7) + 8*x[1]**2 + 2]])
 
 # f(512, 404.2319) = -959.6407
 eggholder = lambda x: (

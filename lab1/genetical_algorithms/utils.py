@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import time
-import numba as nb
+# import numba as nb
 
 def get_n_grey(n: int) -> list :
     grays = []
