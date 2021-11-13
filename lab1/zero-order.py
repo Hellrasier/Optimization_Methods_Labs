@@ -188,23 +188,23 @@ def nelder_mead(f, x0, epsilon, title, l=1, alpha=1, beta=2, gamma=0.5, delta=0.
 
 # fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_sqrt1, l=1)
 # optimization_result(test_sqrt1[3], fmin, xmin, K, f_ev, res=res)
-# a = anim.get_animation(duration=10000).save('examples/Sqrt/Sqrt1-Nelder-Mead.gif')
+# # a = anim.get_animation(duration=10000).save('examples/Sqrt/Sqrt1-Nelder-Mead.gif')
 
 # fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_sqrt2, l=1)
 # optimization_result(test_sqrt2[3], fmin, xmin, K, f_ev, res=res)
-# a = anim.get_animation(duration=10000).save('examples/Sqrt/Sqrt2-Nelder-Mead.gif')
+# # a = anim.get_animation(duration=5000).save('examples/Sqrt/Sqrt2-Nelder-Mead.gif')
 
-fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_rosen1, l=1)
+fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_rosen1, l=1.5)
 optimization_result(test_rosen1[3], fmin, xmin, K, f_ev, res=res)
-a = anim.get_animation(duration=10000).save('examples/Rosenbrock/Rosenbrock1-Nelder-Mead.gif')
+a = anim.get_animation(duration=15000).save('examples/Rosenbrock/Rosenbrock1-Nelder-Mead.gif')
 
 fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_rosen2, l=1)
 optimization_result(test_rosen2[3], fmin, xmin, K, f_ev, res=res)
-a = anim.get_animation(duration=10000).save('examples/Rosenbrock/Rosenbrock2-Nelder-Mead.gif')
+a = anim.get_animation(duration=15000).save('examples/Rosenbrock/Rosenbrock2-Nelder-Mead.gif')
 
-fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_rosen3, l=0.6)
+fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_rosen3, l=1.5)
 optimization_result(test_rosen3[3], fmin, xmin, K, f_ev, res=res)
-a = anim.get_animation(duration=10000).save('examples/Rosenbrock/Rosenbrock3-Nelder-Mead.gif')
+# a = anim.get_animation(duration=8000).save('examples/Rosenbrock/Rosenbrock3-Nelder-Mead.gif')
 
 fmin, xmin, K, f_ev, anim, res = nelder_mead(*test_himmel1, l=1)
 optimization_result(test_himmel1[3], fmin, xmin, K, f_ev, res=res)
