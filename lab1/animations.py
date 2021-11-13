@@ -140,6 +140,7 @@ class AnimateSimplex:
         points = self.data[i]
         self.ax.set_xlabel(f"Iteration:{i}")
         self.fig, self.ax = draw_simplex(points, self.fig, self.ax)
+        print(f"\rIteration: {i}/{len(self.data)}")
         if i == self.length() - 1:
             print("Animation created succesfully")
     
