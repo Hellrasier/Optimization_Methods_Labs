@@ -130,8 +130,7 @@ class AnimateSimplex:
         
     def frame(self, i):
         if self.counter == 0:
-            self.ax1.cla()
-            self.ax2.cla()
+            self.ax.cla()
             self.counter += 1
             return
         if self.counter == 1:
