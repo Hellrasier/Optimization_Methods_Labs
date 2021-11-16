@@ -43,6 +43,7 @@ class Animate3D:
     counter = 0
     
     def __init__(self, f, x0, title):
+        print(x0)
         self.f = f
         self.data = np.array([x0])
         self.fig.suptitle(title, fontsize=16)
@@ -67,6 +68,7 @@ class Animate3D:
             self.counter += 1
             return
         if(i % self.length() == 0):
+            print(f"\rPloting graph...        ", end="")
             self.ax1.clear()
             self.ax2.clear()
             self.plt_3d(xy_range=self.data_min_max())
@@ -86,8 +88,9 @@ class Animate3D:
         self.line1 = self.ax1.plot(X, Y, Z, color='r', linewidth=5)
         self.line2 = self.ax2.plot([x1[0], x2[0]], [x1[1], x2[1]], color='r', linewidth=0.7)
         self.ax2.set_xlabel(f"Iteration:{i % self.length()}")
+        print(f"\rIteration: {i}/{len(self.data) * 4}", end="")
         if i == self.length()*4 - 1:
-            print("Animation created succesfully")
+            print("\rAnimation created succesfully", end="")
     
     def get_animation(self, duration):
         return pltanimation.FuncAnimation(self.fig, self.frame, frames=self.length()*4, interval=duration/self.length(), repeat=True)
@@ -134,6 +137,7 @@ class AnimateSimplex:
             self.counter += 1
             return
         if self.counter == 1:
+            print(f"Ploting graph...", end="")
             self.contour(xy_range=self.data_min_max())
             self.simplex = draw_simplex(self.data[0], self.fig, self.ax)
             self.counter += 1
@@ -142,7 +146,11 @@ class AnimateSimplex:
         self.fig, self.ax = draw_simplex(points, self.fig, self.ax)
         print(f"\rIteration: {i}/{len(self.data)}", end="")
         if i == self.length() - 1:
-            print("Animation created succesfully")
+            print("\rAnimation created succesfully", end="")
     
     def get_animation(self, duration):
         return pltanimation.FuncAnimation(self.fig, self.frame, frames=self.length(), interval=duration/self.length(), repeat=True)
+    
+    
+def load_animation(anim, func, method, test_num, duration, frmt="mp4"):
+    anim.get_animation(duration=duration).save(f"examples/{func}/{func}{test_num}-{method}.{frmt}")

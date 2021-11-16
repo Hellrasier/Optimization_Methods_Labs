@@ -65,7 +65,7 @@ atetkov  = lambda x: 6*pow(x[0],2) - 4*x[0]*x[1] + 3*pow(x[1],2) + 4* math.sqrt(
 # print(R_n)
 # X_K[0], X_K[1] = np.random.choice(domain[0], 1), np.random.choice(domain[1], 1)
 
-def  Hooke_Jeeves(f,x0, start_vector,epsilon, gamma=1.5):
+def Hooke_Jeeves(f,x0, start_vector,epsilon, gamma=1.5):
 
      dim = len(x0)
      base_vectors = np.empty([dim], dtype=object)

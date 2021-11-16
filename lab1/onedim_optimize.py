@@ -2,6 +2,7 @@ from scipy.misc import derivative
 import numpy as np
 from genetical_algorithms import utils, operators
 import math as m
+from scipy.optimize import minimize_scalar
 def der(f, x, n):
     return derivative(f, x, dx=np.float64(1e-8), n=n)
 
@@ -11,6 +12,10 @@ def der(f, x, n):
 #     x_dx = x + eps
 #     der2 = der(f, x_dx, 1)
 #     return np.divide(der2 - der1, eps)
+
+def brent_optimize(f, a, b, epsilon):
+    res = minimize_scalar(f)
+    return res.x, res.nfev
 
 def getFibbonachies(epsilon):
     fibbs = [] 
