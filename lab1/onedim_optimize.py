@@ -3,8 +3,10 @@ import numpy as np
 from genetical_algorithms import utils, operators
 import math as m
 from scipy.optimize import minimize_scalar
+from scipy.optimize import root_scalar
+from scipy.constants import golden
 def der(f, x, n):
-    return derivative(f, x, dx=np.float64(1e-8), n=n)
+    return derivative(f, x, dx=np.float64(1e-7), n=n)
 
 # def der2(f, x):
 #     eps = np.float64(1e-6)
@@ -15,20 +17,23 @@ def der(f, x, n):
 
 def brent_optimize(f, a, b, epsilon):
     res = minimize_scalar(f)
-    return res.x, res.nfev
-
-def getFibbonachies(epsilon):
+    return np.float64(res.x), res.nfev
+    
+def getFibbonachies(n):
     fibbs = [] 
     fibbs.append(1)
     fibbs.append(1)
-    while(fibbs[len(fibbs) - 1] < 1/epsilon):
+    while(fibbs[len(fibbs) - 1] < n):
         f2 = fibbs[len(fibbs) - 1]
         f1 = fibbs[len(fibbs) - 2]
         fibbs.append(f1 + f2)
     return fibbs
     
-def fibbonaci_method(f, a, b, epsilon):
-    F = getFibbonachies(epsilon/1000)
+def fibbonaci_method(f, a, b, epsilon, iters=None):
+    if iters != None:
+        F = getFibbonachies(iters)
+    else:
+        F = getFibbonachies(1/epsilon)
     N = len(F) - 2
     l = b - a
     delta = epsilon / 100
@@ -57,35 +62,41 @@ def fibbonaci_method(f, a, b, epsilon):
     else:
         return (a+b)/2, k+1
 
+    
+   
 
 def upgraded_newton(f, a, b, epsilon):
-    der1 = der(f, a, 1)
-    sec_der = der(f, a, 2)
-#     print("sec der", sec_der)
-    if sec_der <= epsilon:
-#         print("Starting fibbonaci")
-        x, k = fibbonaci_method(f, a, b, epsilon)
-        return x, k
+    f_ev = 0
     x0 = a
-    f_ev = 4
+    der1 = der(f, x0, 1)
+    sec_der = der(f, x0, 2)
+    while sec_der <= epsilon:
+        print(x0)
+        x1, k = fibbonaci_method(f, a, b, epsilon, iters=10)
+        f_ev += k
+        if m.fabs(x0 - x1) > epsilon:
+            return x1, f_ev
+        sec_der = der(f, x0, 2)
+        x0 = x1
     x1 = x0 - np.divide(der1, sec_der)
-#     print(x1)
+    print(x1)
     der2 = der(f, x1, 1)
     f_ev += 2
-    while(m.fabs(x0 - x1) > epsilon):
-        if np.absolute(der2 - der1) < epsilon:
-            x, k = fibbonaci_method(f, a, b, epsilon)
+    while(der2 > epsilon):
+        while np.absolute(der2 - der1) < epsilon:
+            x1, k = fibbonaci_method(f, x1, b, epsilon, iters=10)
             f_ev += k
-            return x, f_ev
+            if np.absolute(der2) > epsilon:
+                return x1, f_ev
+            der1 = der2
+            der2 = der(f, x1, 1)
+        x0 = x1
         x2 = x1 - np.divide(x1 - x0, der2 - der1) * der2
-#         print(x2)
         x0 = x1
         x1 = x2
         der1 = der2
         der2 = der(f, x1, 1)
         f_ev += 2
-#     if x1 > b:
-#         x1 = b
     return x1, f_ev          
 
 def find_parabola_minimum(x1, x2, x3, f1, f2, f3):
@@ -126,20 +137,53 @@ def quadratic_approx(f, a, b, epsilon):
     return xm, k+2
 
 def newton_modified(f, a, b, epsilon):
-    der1 = der(f, a, 1)
-    derb = der(f, b, 1)
+    f_ev = 0
     x0 = a
-    x1 = np.divide(a * derb - b*der1, derb - der1)
+    der1 = der(f, x0, 1)
+    sec_der = der(f, x0, 2)
+    if sec_der < 0:
+        return brent_optimize(f, a, b, eps)
+    x1 = x0 - np.divide(der1, sec_der)
     der2 = der(f, x1, 1)
-    k = 0
-    while(m.fabs(x0 - x1) > epsilon):
+    f_ev += 2
+    while(np.absolute(x0 - x1) > epsilon):
+        x0 = x1
+        if (der2 - der1 == 0):
+            return brent_optimize(f, a, b, eps)
         x2 = x1 - np.divide(x1 - x0, der2 - der1) * der2
         x0 = x1
         x1 = x2
         der1 = der2
         der2 = der(f, x1, 1)
-        k += 1
-    return x1, k
+        f_ev += 2
+    return x1, f_ev   
+
+def newton_modified2(f, a, b, epsilon):
+    f_ev = 0
+    x0 = a
+    print(x0, f(x0))
+    der1 = der(f, x0, 1)
+    sec_der = der(f, x0, 2)
+    f_ev += 4
+    if sec_der < 0:
+        return fibbonaci_method(f, a, b, epsilon)
+    x1 = x0 - np.divide(der1, sec_der)
+    print(x1, f(x1))
+    der2 = der(f, x1, 1)
+    f_ev += 2
+    while(np.absolute(x0 - x1) > epsilon):
+        x0 = x1
+        if (der2 - der1 == 0):
+            return fibbonaci_method(f, x0, b, epsilon)
+        x2 = x1 - np.divide(x1 - x0, der2 - der1) * der2
+        print(x2, f(x2))
+        x0 = x1
+        x1 = x2
+        der1 = der2
+        der2 = der(f, x1, 1)
+        f_ev += 2
+    print(x1, f(x1))
+    return x1, f_ev   
 
 def middle_point_method(f, a, b, eps=1e-8):
     condition = lambda a, b: b - a < eps
@@ -184,7 +228,7 @@ def qubic_approx(f, a, b, epsilon):
         f1 = fm
         df1 = dfm
     k = 1
-    while(np.absolute(dfm) > epsilon and x2 - x1 > epsilon/100):
+    while(x2 - x1 > epsilon):
 #         print("x2 - x1", x2 - x1)
         mu = find_mu(x1, x2, f1, f2, df1, df2)
         xm = x1 + mu*(x2 - x1)
@@ -203,60 +247,103 @@ def qubic_approx(f, a, b, epsilon):
     return xm, k
 
 
-def genetical_algorithm(f, a, b, epsilon):
-    search_area = [a, b]
-    gen_length = int(np.ceil(np.log2(np.divide(search_area[1] - search_area[0], epsilon))))
-    dim = 1
-    n_population=50 
-    iterations=100
-    selection=operators.proportional_selection
-    selector=operators.remainder_stochastic_sampling
-    points_map, population = utils.generate_codes_and_population(gen_length, search_area, n_population, dim)
-    population_evaluation = utils.evaluate_population(population, points_map, f, dim)
-    f_ev = population.shape[0]
-    populations = [population_evaluation]
-    i = 0
-    while population.size > 5 and i < iterations:
-        if selection == operators.proportional_selection:
-            population = selection(
-                population,
-                points_map,
-                f,
-                selector=selector,
-                dim=dim,
-                evaluated=population_evaluation,
-            )
+def golden_scale_method(f, a, b, epsilon, iterations=None):
+    g_c = golden
+    x, f_x = 0.0, 0.0
+    x2 = (b - a)/g_c + a 
+    x1 = b - (b - a)/(g_c)
+    f_x1, f_x2 = f(x1), f(x2)
+    f_ev = 2
+    k = 1
+    a, b, x, f_x = cut_section_procedure(a, x1, x2, b, f_x1, f_x2)
+    while(b - a > epsilon):
+        y = a + b - x
+        if x < y:
+            x1, x2 = x, y
+            f_x1, f_x2 = f_x, f(y)
+            f_ev += 1
+        else: 
+            x1, x2 = y, x
+            f_x1, f_x2 = f(y), f_x
+            f_ev += 1
+        a, b, x, f_x = cut_section_procedure(a, x1, x2, b, f_x1, f_x2) 
+        k += 1 
+        if iterations != None:
+            if k == iterations:
+                return a, b, f_ev
+    return a, b, f_ev
+
+
+def qubic_modified(f, a, b, epsilon):
+    print(a, b)
+    x1, x2, f_ev = golden_scale_method(f, a, b, epsilon, iterations=3)
+    print(x1, x2)
+    f1, f2 = f(x1), f(x2)
+    df1, df2 = der(f, x1, 1), der(f, x2, 1)
+    f_ev += 6
+    while(df1*df2 > 0):
+        print("starting golden")
+        x1, x2, k = golden_scale_method(f, x1, x2, epsilon, iterations=5)
+        print(x1, x2)
+        f1, f2 = f(x1), f(x2)
+        f_ev += k
+        df1, df2 = der(f, x1, 1), der(f, x2, 1)
+        if x2 - x1 < epsilon:
+            return (x1 + x2)/2, f_ev
+    xm = (x1 + x2)/2
+    while(True):
+        mu = find_mu(x1, x2, f1, f2, df1, df2)
+        xm = x1 + mu*(x2 - x1)
+        dfm = der(f, xm, 1)
+        fm = f(xm)
+        f_ev += 3
+        if xm > x2 or (fm > f1 and fm > f2) or df1*df2 > 0:
+            print("starting golden")
+            x1, x2, k = golden_scale_method(f, x1, x2, epsilon, iterations=5)
+            print(x1, x2)
+            f1, f2 = f(x1), f(x2)
+            f_ev += k
+            df1, df2 = der(f, x1, 1), der(f, x2, 1)
+            if x2 - x1 < epsilon:
+                return (x1 + x2)/2, f_ev
+            continue
+        print(x1, xm, x2, f(x1), f(xm), f(x2))
+
+        if x2 - xm < epsilon or xm - x1 < epsilon:
+            return xm, f_ev
+        if df1*dfm < 0:
+            x2 = xm
+            f2 = fm
+            df2 = dfm
         else:
-            population = selection(
-                population,
-                points_map,
-                f,
-                evaluated=population_evaluation,
-            )
+            x1 = xm
+            f1 = fm
+            df1 = dfm
+    
 
-        population = operators.one_point_crossover(population)
-        population = operators.mutation(population)
-        np.random.shuffle(population)
-        population_evaluation = utils.evaluate_population(population, points_map, f, dim)
-        f_ev += population.shape[0]
-        populations.append(population_evaluation)
-        fitnesses = utils.fitness(population, points_map, f, dim, population_evaluation)
-        ftns = np.asarray(fitnesses[:, -1], np.float128)
-        print("generation {}: number of gens {}, avg fitness {}".format(i, population.size, np.average(ftns)))
-        i += 1
-    best = utils.best_genotype(population, points_map, f, dim)
-    return np.float64(best[1]), f_ev
+# def golden_iteration(a, b, x, f_x, f_ev):
+#     y = a + b - x
+#     if x < y:
+#         x1, x2 = x, y
+#         f_x1, f_x2 = f_x, f(y)
+#         k += 1
+#     else: 
+#         x1, x2 = y, x
+#         f_x1, f_x2 = f(y), f_x
+#         k += 1
+#     a, b, x, f_x = cut_section_procedure(a, x1, x2, b, f_x1, f_x2) 
+#     f_ev += 1
+#     return a, b, x, f_x, f_ev
 
+def brent_root_algorithm(f, a, b):
+    df = lambda x: der(f, x, 1)
+    res = root_scalar(df, bracket=[a, b], method="brenth")
+    print("root", res.root)
+    return np.float64(res.root), res.function_calls
 
-
-
-# def one_dim_optimizer(f, a, b, eps):
-#     K = 0
-#     a, b, k = fibbonaci_method(f, a, b, eps*100)
-#     print("Fibbonaci finished with a=", a, "b=", b)
-#     K += k
-#     x, k = qubic_approx(f, a, b, eps)
-#     print("Qubic finished with x=", x)
-#     K = k
-#     return x, K
-
+def one_dim_optimizer(f, a, b, eps):
+    x, f_ev = 0, 0
+    if der(f, a, 1)*der(f, b, 1) < 0:
+        return newton_modified(f, a, b, eps)
+    else:
+        return brent_optimize(f, a, b, eps)
